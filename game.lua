@@ -1,14 +1,14 @@
 local update_fn
-local eyes = {}
-local ball = {}
-local grow = {}
-local aim = {}
+local blink_img = {}
+local wound_img = {}
 local aim_speed = 1.5
 local ball_speed = 500
 local friction = 0.99
 
 local play_h = love.graphics.getHeight()
 local play_w = play_h
+local play_h0 = play_h - 50
+local play_h1 = play_h0 - 15
 local play_w0 = play_w - 15
 
 local start_x = play_w / 2
@@ -18,15 +18,36 @@ local bg_img
 local eye1_img1
 local eye1_img2
 
+local eyes
+local ball = {}
+local grow = {}
+local aim
+local score
+
+local paused = false
+
 --=== Forward Declarations ===---
 
 local do_wait
 local do_shoot
 local do_grow
-
-local paused = false
+local do_gameover
 
 --=== Init Functions ===---
+
+local function reset()
+  eyes = {}
+  aim = {
+    angle = 0,
+    direction = aim_speed
+  }
+
+  score = 0
+
+  print "Game started"
+
+  do_wait()
+end
 
 local function add_eye(sz)
   local r = sz * 160 + 60 * 0.25
@@ -87,6 +108,8 @@ local function update_shoot(dt)
     print "Bounce top wall"
     ball.y = 30 - ball.y
     ball.dy = - ball.dy
+  elseif ball.y > play_h1 and ball.dy < 0 then
+    do_gameover()
   end
 
   -- bounce on eyes
@@ -98,7 +121,7 @@ local function update_shoot(dt)
 
     local dr2 = dx*dx + dy*dy
     if dr2 < v.collision2 then
-      print ("Bounce eye number", k)
+      print ("Bounce eye number:", k)
 
       local distance  = math.sqrt(dr2);
       local collision = v.radius + 15;
@@ -133,14 +156,32 @@ local function update_shoot(dt)
       ball.x = ball.x + ball.dx*dt0;
       ball.y = ball.y - ball.dy*dt0;
 
-      --paused = true
+      v.dblink = 30
+    end
+
+    if v.dblink ~= 0 then
+      v.blink = v.blink + v.dblink * dt
+      if v.blink > 3.5 then
+        v.dblink = - v.dblink
+        v.blink  = 3.5
+        if v.wound >= 3 then
+          eyes[k] = nil
+          score = score + 1
+          print ("Delete eye:",k)
+        else
+          v.wound = v.wound + 1
+        end
+      elseif v.blink < 0 then
+        v.blink  = 0
+        v.dblink = 0
+      end
     end
   end
 
   ball.speed = ball.speed * friction
 
   if ball.speed < 5.0 then
-    print ("Stopped at speed", ball.speed)
+    print ("Stopped at speed:", ball.speed)
     do_grow()
   end
 end
@@ -148,16 +189,13 @@ end
 local function update_grow(dt)
   grow.size = grow.size + 0.02
 
-  local r = 160 * grow.size
-
-  if ball.x - r <= 0
-  or ball.x + r >= play_w
-  or ball.y - r <= 0
-  or ball.y + r >= play_h
-  then
-    add_eye(grow.size)
+  if grow.size >= grow.max_size then
+    add_eye(grow.max_size)
     do_wait()
   end
+end
+
+local function update_gameover(dt)
 end
 
 --=== Switch functions ===---
@@ -190,11 +228,28 @@ do_grow = function()
   --print"do_grow"
   update_fn = update_grow
 
+  local r = math.min(ball.x, play_w - ball.x , ball.y, play_h0 - ball.y)
+
+  for k, v in pairs(eyes) do
+    local dx = ball.x - v.x
+    local dy = ball.y - v.y
+    local dr = math.sqrt(dx*dx+dy*dy) - v.radius
+    r = math.min(r, dr)
+  end
+
+  print ("Grow to:", r)
+
   ball.speed = 0
   ball.dx = 0
   ball.dy = 0
 
   grow.size = 0.1
+  grow.max_size = r/160
+end
+
+do_gameover = function()
+  print ("Lost:",score)
+  update_fn = update_gameover
 end
 
 --=== CALLBACKS ===---
@@ -204,7 +259,17 @@ game = {}
 function game.load()
   love.graphics.setBackgroundColor(0,0,0)
 
-  bg_img   = love.graphics.newImage("assets/background.png")
+  bg_img = love.graphics.newImage("assets/background.png")
+  gameover_img = love.graphics.newImage("assets/gameover.png")
+
+  blink_img[1] = love.graphics.newImage("assets/blink1.png")
+  blink_img[2] = love.graphics.newImage("assets/blink2.png")
+  blink_img[3] = love.graphics.newImage("assets/blink3.png")
+  blink_img[4] = love.graphics.newImage("assets/blink4.png")
+
+  wound_img[1] = love.graphics.newImage("assets/wound1.png")
+  wound_img[2] = love.graphics.newImage("assets/wound2.png")
+  wound_img[3] = love.graphics.newImage("assets/wound3.png")
 
   eye1_img1 = love.graphics.newImage("assets/green0.png")
   eye1_img2 = love.graphics.newImage("assets/green1.png")
@@ -212,44 +277,54 @@ function game.load()
   grow.img = love.graphics.newImage("assets/ball1.png")
   ball.img = love.graphics.newImage("assets/ball.png")
 
-  aim.angle = 0
-  aim.direction = aim_speed
-
-  --print"game started"
-
-  do_wait()
+  print "Assets Loaded"
+  reset()
 end
 
 function game.draw()
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(bg_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
 
-  love.graphics.setColor(255, 128, 0, 180)
-  love.graphics.setLineWidth(3)
-
-  local x2 = start_x + 50 * math.sin(aim.angle)
-  local y2 = start_y - 50 * math.cos(aim.angle)
-  love.graphics.line(start_x, start_y, x2, y2)
+  love.graphics.setColor(255, 255, 0, 255)
+  love.graphics.print( score, 700, 100, 0, 2, 2)
 
   love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.setLineWidth(1)
 
   for k, v in pairs(eyes) do
     love.graphics.draw(v.img1, v.x, v.y, 0.0, v.size, v.size, 160, 160)
+    if v.wound>0 then
+      love.graphics.draw(wound_img[v.wound], v.x, v.y, 0.0, v.size, v.size, 160, 160)
+    end
+
     local lx = (v.x - ball.x) * v.size / play_w * 80
     local ly = (v.y - ball.y) * v.size / play_h * 80
-
     love.graphics.draw(v.img2, v.x - lx, v.y - ly, 0.0, v.size, v.size, 65, 65)
+
+    if v.blink>0 then
+      love.graphics.draw(blink_img[math.ceil(v.blink)], v.x, v.y, 0.0, v.size, v.size, 160, 160)
+    end
   end
 
-  if grow.size>0 then
-    local alpha = math.sqrt(grow.size) * 400
-    if alpha>255 then alpha = 255 end
-    love.graphics.setColor(255, 255, 255, alpha)
-    love.graphics.draw(grow.img, ball.x, ball.y, 0.0, grow.size, grow.size, 160, 160)
-  end
+  if update_fn == update_gameover then
+    love.graphics.draw(gameover_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
+  else
+    love.graphics.setColor(255, 128, 0, 180)
+    love.graphics.setLineWidth(3)
 
-  love.graphics.draw(ball.img, ball.x, ball.y, 0.0, 0.25, 0.25, 60, 60)
+    local x2 = start_x + 50 * math.sin(aim.angle)
+    local y2 = start_y - 50 * math.cos(aim.angle)
+    love.graphics.line(start_x, start_y, x2, y2)
+
+    if grow.size>0 then
+      local alpha = math.sqrt(grow.size) * 400
+      if alpha>255 then alpha = 255 end
+      love.graphics.setColor(255, 255, 255, alpha)
+      love.graphics.draw(grow.img, ball.x, ball.y, 0.0, grow.size, grow.size, 160, 160)
+    end
+
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.draw(ball.img, ball.x, ball.y, 0.0, 0.25, 0.25, 60, 60)
+  end
 end
 
 function game.update(dt)
@@ -260,6 +335,8 @@ end
 function game.keypressed(key)
   if (key == "p") then
     paused = not paused
+  elseif update_fn == update_gameover then
+    reset()
   elseif update_fn == update_wait then
     do_shoot()
   end
