@@ -1,4 +1,4 @@
-require "game"
+require "menu"
 
 local state = nil
 
@@ -10,7 +10,11 @@ end
 function love.load()
   math.randomseed(os.time())
 
-  change_state(game)
+  default_font = love.graphics.newImageFont("assets/font.png",
+    " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?/=+-()*^'&")
+  love.graphics.setFont(default_font)
+
+  change_state(menu)
 end
 
 function love.draw()
@@ -19,6 +23,10 @@ end
 
 function love.update(dt)
   state.update(dt)
+end
+
+function love.focus(f)
+  paused = not f
 end
 
 function love.keypressed(key)
@@ -32,3 +40,11 @@ function love.keypressed(key)
     state.keypressed(key)
   end
 end
+
+--[[
+ 480 x 320 normal   1.5
+ 800 x 480 large    1.6666666666666667
+1024 x 600          1.7066666666666668
+1280 x 800 xlarge   1.6
+]]
+

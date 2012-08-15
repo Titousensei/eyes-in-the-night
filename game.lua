@@ -24,7 +24,7 @@ local grow = {}
 local aim
 local score
 
-local paused = false
+--local paused = false
 
 --=== Forward Declarations ===---
 
@@ -336,7 +336,8 @@ function game.keypressed(key)
   if (key == "p") then
     paused = not paused
   elseif update_fn == update_gameover then
-    reset()
+    --reset()
+    change_state(menu)
   elseif update_fn == update_wait then
     do_shoot()
   end

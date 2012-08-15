@@ -26,7 +26,7 @@
 
 function love.conf(t)
   t.title = "Eyes in the night"
-  t.screen.width = 800
+  t.screen.width = 600
   t.screen.height = 600
   t.modules.audio = false
   t.modules.sound = false
