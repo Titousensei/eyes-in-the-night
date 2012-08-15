@@ -1,12 +1,12 @@
+require "eyes"
+
 local update_fn
-local blink_img = {}
-local wound_img = {}
 local aim_speed = 1.5
 local ball_speed = 500
 local friction = 0.99
 
-local play_h = love.graphics.getHeight()
-local play_w = play_h
+play_h = love.graphics.getHeight()
+play_w = love.graphics.getWidth()
 local play_h0 = play_h - 50
 local play_h1 = play_h0 - 15
 local play_w0 = play_w - 15
@@ -15,8 +15,6 @@ local start_x = play_w / 2
 local start_y = play_h - 15
 
 local bg_img
-local eye1_img1
-local eye1_img2
 
 local eyes
 local ball = {}
@@ -49,28 +47,6 @@ local function reset()
   do_wait()
 end
 
-local function add_eye(sz)
-  local r = sz * 160 + 60 * 0.25
-  local r2 = r*r
-
-  print ("New eye:", ball.x, ball.y, r)
-
-  -- ball radius = 60
-  local e = {
-    img1 = eye1_img1,
-    img2 = eye1_img2,
-    x = ball.x,
-    y = ball.y,
-    size = sz,
-    radius = sz*160,
-    collision2 = r2,
-    wound = 0,
-    blink = 0,
-    dblink = 0
-  }
-
-  table.insert(eyes, e)
-end
 
 --=== Update Functions ===---
 
@@ -112,69 +88,18 @@ local function update_shoot(dt)
     do_gameover()
   end
 
+  if ball.dx == 0 and ball.dy == 0 then return end
+
   -- bounce on eyes
   for k, v in pairs(eyes) do
-    local dx = (v.x - ball.x)
-    local dy = (v.y - ball.y)
+    local b = v:bounce(ball, dt)
 
-    if ball.dx == 0 and ball.dy == 0 then return end
-
-    local dr2 = dx*dx + dy*dy
-    if dr2 < v.collision2 then
+    if b == 1 then
       print ("Bounce eye number:", k)
-
-      local distance  = math.sqrt(dr2);
-      local collision = v.radius + 15;
-      local motion    = math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy)
-
-      -- rewind time to exact instant of collision
-      local dt0 = (collision - distance)/motion --+ 0.001  -- surcompensate precision loss
-      ball.x = ball.x - ball.dx * dt0
-      ball.y = ball.y + ball.dy * dt0
-
-      dx = (v.x - ball.x)
-      dy = (v.y - ball.y)
-      dr = math.sqrt(dx*dx+dy*dy)
-
-      -- Unit vector in the direction of the collision
-      local ax = dx/dr
-      local ay = -dy/dr
-
-      -- Projection of the velocities on the collision axis
-      local va =  ball.dx*ax + ball.dy*ay
-      local vb = -ball.dx*ay + ball.dy*ax
-
-      -- Rebound
-      va = -va
-      --vb = vb
-
-      -- new dx,dy for ball after collision
-      ball.dx = va*ax - vb*ay;
-      ball.dy = va*ay + vb*ax;
-
-      -- move ball in the new direction to current time
-      ball.x = ball.x + ball.dx*dt0;
-      ball.y = ball.y - ball.dy*dt0;
-
-      v.dblink = 30
-    end
-
-    if v.dblink ~= 0 then
-      v.blink = v.blink + v.dblink * dt
-      if v.blink > 3.5 then
-        v.dblink = - v.dblink
-        v.blink  = 3.5
-        if v.wound >= 3 then
-          eyes[k] = nil
-          score = score + 1
-          print ("Delete eye:",k)
-        else
-          v.wound = v.wound + 1
-        end
-      elseif v.blink < 0 then
-        v.blink  = 0
-        v.dblink = 0
-      end
+    elseif b == -1 then
+      eyes[k] = nil
+      score = score + 1
+      print ("Delete eye:",k)
     end
   end
 
@@ -190,7 +115,9 @@ local function update_grow(dt)
   grow.size = grow.size + 0.02
 
   if grow.size >= grow.max_size then
-    add_eye(grow.max_size)
+    --local e = new_eye(grow.max_size, ball.x, ball.y, "green")
+    local e = new_eye(grow.max_size, ball.x, ball.y)
+    table.insert(eyes, e)
     do_wait()
   end
 end
@@ -262,20 +189,10 @@ function game.load()
   bg_img = love.graphics.newImage("assets/background.png")
   gameover_img = love.graphics.newImage("assets/gameover.png")
 
-  blink_img[1] = love.graphics.newImage("assets/blink1.png")
-  blink_img[2] = love.graphics.newImage("assets/blink2.png")
-  blink_img[3] = love.graphics.newImage("assets/blink3.png")
-  blink_img[4] = love.graphics.newImage("assets/blink4.png")
-
-  wound_img[1] = love.graphics.newImage("assets/wound1.png")
-  wound_img[2] = love.graphics.newImage("assets/wound2.png")
-  wound_img[3] = love.graphics.newImage("assets/wound3.png")
-
-  eye1_img1 = love.graphics.newImage("assets/green0.png")
-  eye1_img2 = love.graphics.newImage("assets/green1.png")
-
   grow.img = love.graphics.newImage("assets/ball1.png")
   ball.img = love.graphics.newImage("assets/ball.png")
+
+  init_eyes()
 
   print "Assets Loaded"
   reset()
@@ -286,23 +203,12 @@ function game.draw()
   love.graphics.draw(bg_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
 
   love.graphics.setColor(255, 255, 0, 255)
-  love.graphics.print( score, 700, 100, 0, 2, 2)
+  love.graphics.print( score, 20, 565, 0, 1, 1)
 
   love.graphics.setColor(255, 255, 255, 255)
 
   for k, v in pairs(eyes) do
-    love.graphics.draw(v.img1, v.x, v.y, 0.0, v.size, v.size, 160, 160)
-    if v.wound>0 then
-      love.graphics.draw(wound_img[v.wound], v.x, v.y, 0.0, v.size, v.size, 160, 160)
-    end
-
-    local lx = (v.x - ball.x) * v.size / play_w * 80
-    local ly = (v.y - ball.y) * v.size / play_h * 80
-    love.graphics.draw(v.img2, v.x - lx, v.y - ly, 0.0, v.size, v.size, 65, 65)
-
-    if v.blink>0 then
-      love.graphics.draw(blink_img[math.ceil(v.blink)], v.x, v.y, 0.0, v.size, v.size, 160, 160)
-    end
+    v:draw(ball.x, ball.y)
   end
 
   if update_fn == update_gameover then
