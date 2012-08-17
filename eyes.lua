@@ -96,8 +96,17 @@ local function draw(v, bx, by)
     love.graphics.draw(wound_img[v.wound], v.x, v.y, 0.0, v.size, v.size, 160, 160)
   end
 
-  local lx = (v.x - bx) * v.size / play_w * 80
-  local ly = (v.y - by) * v.size / play_h * 80
+  local lx = v.x - bx
+  local ly = v.y - by
+  local lz = math.sqrt(lx*lx+ly*ly)
+
+  if lz <= v.size * 60 then
+    lx = v.x - bx
+    ly = v.y - by
+  else
+    lx = 60 * v.size * lx / lz
+    ly = 60 * v.size * ly / lz
+  end
   love.graphics.draw(eye_data[v.color].fg, v.x - lx, v.y - ly, 0.0, v.size, v.size, 65, 65)
 
   if v.blink>0 then

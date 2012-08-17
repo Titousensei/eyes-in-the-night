@@ -14,6 +14,8 @@ function love.load()
     " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?/=+-()*^'&")
   love.graphics.setFont(default_font)
 
+  init_eyes()
+
   change_state(menu)
 end
 
@@ -27,6 +29,20 @@ end
 
 function love.focus(f)
   paused = not f
+end
+
+mousex = -1
+mousey = -1
+mouseb = -1
+
+function love.mousepressed(x,y,b)
+  mousex = x
+  mousey = y
+  mouseb = b
+end
+
+function love.mousereleased(x,y,b)
+  state.mousereleased(x,y,b)
 end
 
 function love.keypressed(key)
