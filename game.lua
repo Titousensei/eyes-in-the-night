@@ -24,6 +24,11 @@ local score
 
 local pause = false
 
+local sound_no = love.audio.newSource("assets/no.mp3", "static")
+local sound_no_long = love.audio.newSource("assets/no_long.mp3", "static")
+local sound_lost1 = love.audio.newSource("assets/lost1.mp3", "static")
+local sound_lost_all = love.audio.newSource("assets/lost_all.mp3", "static")
+
 --=== Forward Declarations ===---
 
 local do_wait
@@ -95,12 +100,14 @@ local function update_shoot(dt)
   for k, v in pairs(eyes) do
     local b = v:bounce(ball, dt)
 
-    if b == 1 then
+    if b == 0 then
       print ("Bounce eye number:", k)
-    elseif b == -1 then
+      love.audio.play(sound_no)
+    elseif b > 0  then
       eyes[k] = nil
-      score = score + 1
-      print ("Delete eye:",k)
+      score = score + b
+      print ("Delete eye:",k, "points", b)
+      love.audio.play(sound_no_long)
     end
   end
 
@@ -177,6 +184,7 @@ end
 
 do_gameover = function()
   print ("Lost:",score)
+  love.audio.play(sound_lost_all)
   update_fn = update_gameover
 end
 

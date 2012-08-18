@@ -28,8 +28,8 @@ function love.conf(t)
   t.title = "Eyes in the night"
   t.screen.width = 600
   t.screen.height = 600
-  t.modules.audio = false
-  t.modules.sound = false
+  t.modules.audio = true
+  t.modules.sound = true
   t.modules.physics = false
   t.modules.joystick = false
 end

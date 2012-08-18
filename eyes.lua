@@ -2,12 +2,19 @@ local eye_data = {}
 local blink_img = {}
 local wound_img = {}
 
-eye_colors = { "brown", "green", "purple" }
+local eye_colors = {}
 
-local function load(name)
-  eye_data[name] = {}
-  eye_data[name].bg = love.graphics.newImage("assets/"..name.."0.png")
-  eye_data[name].fg = love.graphics.newImage("assets/"..name.."1.png")
+local function load(color, maxwound, points)
+  local bg = love.graphics.newImage("assets/"..color.."0.png")
+  local fg = love.graphics.newImage("assets/"..color.."1.png")
+  eye_data[color] = {
+    bg = bg,
+    fg = fg,
+    maxwound = maxwound,
+    points = points
+  }
+
+  table.insert(eye_colors, color)
 end
 
 function init_eyes()
@@ -20,21 +27,20 @@ function init_eyes()
   wound_img[2] = love.graphics.newImage("assets/wound2.png")
   wound_img[3] = love.graphics.newImage("assets/wound3.png")
 
-  for i, v in ipairs(eye_colors) do
-    load(v)
-  end
+  load("brown",  0, 1)
+  load("green",  2, 3)
+  load("purple", 3, 10)
 end
 
 
 -- returns 0: nothing, 1: bounce, -1: eye dead
 local function bounce(v, ball, dt)
-  local ret = 0
+  local ret = -1
   local dx = (v.x - ball.x)
   local dy = (v.y - ball.y)
 
   local dr2 = dx*dx + dy*dy
   if dr2 < v.collision2 then
-    ret = 1
     local distance  = math.sqrt(dr2);
     local collision = v.radius + 15;
     local motion    = math.sqrt(ball.dx*ball.dx + ball.dy*ball.dy)
@@ -76,10 +82,11 @@ local function bounce(v, ball, dt)
     if v.blink > 3.5 then
       v.dblink = - v.dblink
       v.blink  = 3.5
-      if v.wound >= 3 then
-        ret = -1
+      if v.wound >= eye_data[v.color].maxwound then
+        ret = eye_data[v.color].points
       else
         v.wound = v.wound + 1
+        ret = 0
       end
     elseif v.blink < 0 then
       v.blink  = 0
