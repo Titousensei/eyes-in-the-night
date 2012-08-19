@@ -1,4 +1,5 @@
 require "menu"
+require "eyes"
 
 local state = nil
 
@@ -13,6 +14,11 @@ function love.load()
   default_font = love.graphics.newImageFont("assets/font.png",
     " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?/=+-()*^'&")
   love.graphics.setFont(default_font)
+
+  sound_no = love.audio.newSource("assets/no.mp3", "static")
+  sound_no_long = love.audio.newSource("assets/no_long.mp3", "static")
+  sound_lost1 = love.audio.newSource("assets/lost1.mp3", "static")
+  sound_lost_all = love.audio.newSource("assets/lost_all.mp3", "static")
 
   init_eyes()
 
@@ -56,11 +62,4 @@ function love.keypressed(key)
     state.keypressed(key)
   end
 end
-
---[[
- 480 x 320 normal   1.5
- 800 x 480 large    1.6666666666666667
-1024 x 600          1.7066666666666668
-1280 x 800 xlarge   1.6
-]]
 

@@ -1,5 +1,3 @@
---require "menu"
-
 credits = {}
 
 local credits_img

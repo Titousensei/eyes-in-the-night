@@ -1,5 +1,3 @@
-require "eyes"
-
 local update_fn
 local aim_speed = 1.5
 local ball_speed = 500
@@ -23,11 +21,6 @@ local aim
 local score
 
 local pause = false
-
-local sound_no = love.audio.newSource("assets/no.mp3", "static")
-local sound_no_long = love.audio.newSource("assets/no_long.mp3", "static")
-local sound_lost1 = love.audio.newSource("assets/lost1.mp3", "static")
-local sound_lost_all = love.audio.newSource("assets/lost_all.mp3", "static")
 
 --=== Forward Declarations ===---
 

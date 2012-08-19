@@ -1,5 +1,3 @@
---require "menu"
-
 instructions = {}
 
 local instructions_img
