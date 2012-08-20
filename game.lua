@@ -12,13 +12,13 @@ local play_w0 = play_w - 15
 local start_x = play_w / 2
 local start_y = play_h - 15
 
-local bg_img
-
-local eyes
 local ball = {}
 local grow = {}
+
+local eyes
 local aim
-local score
+--local score
+local caption_alpha
 
 local pause = false
 
@@ -37,14 +37,17 @@ local function reset()
     angle = 0,
     direction = aim_speed
   }
+  caption_alpha = 300
 
-  score = 0
+  game_mode.init_map()
 
   print "Game started"
-
   do_wait()
 end
 
+function map_eye(sz, x, y, color)
+  table.insert(eyes, game_mode.new_eye(sz, x, y, color))
+end
 
 --=== Update Functions ===---
 
@@ -61,15 +64,10 @@ local function update_wait(dt)
 end
 
 local function update_shoot(dt)
-
-  --if ball.dx == 0 and ball.dy == 0 then return end
-
   ball.x = ball.x + ball.dx * dt
   ball.y = ball.y - ball.dy * dt
   ball.dx = ball.dx * friction
   ball.dy = ball.dy * friction
-
-  --print (ball.x,ball.y,ball.dx,ball.dy)
 
   if ball.x > play_w0 then
     print "Bounce right wall"
@@ -97,39 +95,43 @@ local function update_shoot(dt)
       print ("Bounce eye number:", k)
       love.audio.play(sound_no)
     elseif b > 0  then
+      game_mode.delete_eye(eyes[k].color)
       eyes[k] = nil
       score = score + b
       print ("Delete eye:",k, "points", b)
       love.audio.play(sound_no_long)
+      if game_mode.end_condition() then
+        do_victory()
+      end
     end
   end
 
   ball.speed = ball.speed * friction
 
-  if ball.speed < 5.0 then
+  if ball.speed==0 then
+    print "FIXME: ball.speed=0"
+  elseif ball.speed < 5.0 then
     print ("Stopped at speed:", ball.speed)
     do_grow()
   end
 end
 
 local function update_grow(dt)
-  grow.size = grow.size + 0.02
+  grow.size = grow.size + dt
 
-  if grow.size >= grow.max_size then
-    --local e = new_eye(grow.max_size, ball.x, ball.y, "green")
-    local e = new_eye(grow.max_size, ball.x, ball.y)
-    table.insert(eyes, e)
+  if grow.size >= .5 then
+    map_eye(grow.max_size, ball.x, ball.y)
     do_wait()
   end
 end
 
-local function update_gameover(dt)
-end
+local function update_gameover(dt) end
+local function update_victory(dt) end
 
 --=== Switch functions ===---
 
 do_wait = function()
-  --print"do_wait"
+  print "... do_wait"
   update_fn = update_wait
 
   grow.size = 0
@@ -142,7 +144,7 @@ do_wait = function()
 end
 
 do_shoot = function()
-  --print"do_shoot"
+  print "... do_shoot"
   update_fn = update_shoot
 
   print ("Shooting angle:", aim.angle)
@@ -153,7 +155,7 @@ do_shoot = function()
 end
 
 do_grow = function()
-  --print"do_grow"
+  print "... do_grow"
   update_fn = update_grow
 
   local r = math.min(ball.x, play_w - ball.x , ball.y, play_h0 - ball.y)
@@ -176,9 +178,25 @@ do_grow = function()
 end
 
 do_gameover = function()
-  print ("Lost:",score)
-  love.audio.play(sound_lost_all)
-  update_fn = update_gameover
+  print ("... do_gameover", game_mode.num_ball)
+  if game_mode.num_ball >= 1 then
+    game_mode.num_ball = game_mode.num_ball - 1
+    love.audio.play(sound_lost)
+    do_grow()
+  else
+    print ("Lost:",score)
+    love.audio.stop()
+    love.audio.play(sound_lost_all)
+    update_fn = update_gameover
+  end
+end
+
+do_victory = function()
+  if game_mode.num_ball < 3 then
+    game_mode.num_ball = game_mode.num_ball + .334
+  end
+  print ("Victory:",score)
+  update_fn = update_victory
 end
 
 --=== CALLBACKS ===---
@@ -186,10 +204,8 @@ end
 game = {}
 
 function game.load()
-  love.graphics.setBackgroundColor(0,0,0)
-
-  bg_img = love.graphics.newImage("assets/background.png")
   gameover_img = love.graphics.newImage("assets/gameover.png")
+  victory_img = love.graphics.newImage("assets/victory.png")
   pause_img = love.graphics.newImage("assets/pause.png")
 
   grow.img = love.graphics.newImage("assets/ball1.png")
@@ -201,12 +217,8 @@ end
 
 function game.draw()
   love.graphics.setColor(255, 255, 255, 255)
-  love.graphics.draw(bg_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
-
-  love.graphics.setColor(255, 255, 0, 255)
-  love.graphics.print( score, 20, 565, 0, 1, 1)
-
-  love.graphics.setColor(255, 255, 255, 255)
+  love.graphics.draw(game_mode.bg_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
+  love.graphics.print(score, 20, 565, 0, 1, 1)
 
   if pause then
     love.graphics.draw(pause_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
@@ -217,6 +229,8 @@ function game.draw()
 
     if update_fn == update_gameover then
       love.graphics.draw(gameover_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
+    elseif update_fn == update_victory then
+      love.graphics.draw(victory_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
     else
       love.graphics.setColor(255, 128, 0, 180)
       love.graphics.setLineWidth(3)
@@ -234,18 +248,34 @@ function game.draw()
 
       love.graphics.setColor(255, 255, 255, 255)
       love.graphics.draw(ball.img, ball.x, ball.y, 0.0, 0.25, 0.25, 60, 60)
+
+      if game_mode.num_ball>0 then
+        for i = 1,game_mode.num_ball do
+          love.graphics.draw(ball.img, start_x+13+i*45, start_y, 0.0, 0.25, 0.25, 60, 60)
+        end
+      end
+
+      if caption_alpha>0 then
+        love.graphics.setColor(255, 255, 255, math.min(caption_alpha,255))
+        love.graphics.printf(game_mode.caption, 50, 200+caption_alpha/3, 500, "center")
+      end
     end
   end
 end
 
 function game.update(dt)
   if pause then return end
+  if game_mode.caption then
+    caption_alpha = caption_alpha - 120*dt
+  end
   update_fn(dt)
 end
 
 function game.mousereleased(x,y,b)
   if update_fn == update_gameover then
     change_state(menu)
+  elseif update_fn == update_victory then
+    next_chapter()
   elseif (b == "r") then
     pause = not pause
   elseif update_fn == update_wait then
@@ -256,6 +286,9 @@ end
 function game.keypressed(key)
   if update_fn == update_gameover then
     change_state(menu)
+  elseif update_fn == update_victory then
+    next_chapter()
+    change_state(chapter)
   elseif (key == "p") then
     pause = not pause
   elseif update_fn == update_wait then

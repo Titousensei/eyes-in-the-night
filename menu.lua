@@ -1,12 +1,18 @@
 require "credits"
 require "instructions"
+require "chapter"
 require "game"
+require "game_mode"
+--require "survival"
 
 menu = {}
 
 local menu_img
 local buttons = {}
 local eyes = {}
+
+local function survival_init_map() end
+local function survival_end_condition() return false end
 
 local function add_button(label, x0, y0, x1, y1)
   buttons[label] = {
@@ -28,8 +34,6 @@ local function find_button(x, y)
 end
 
 function menu.load()
-  love.graphics.setBackgroundColor(0,0,0)
-
   menu_img = love.graphics.newImage("assets/menu1.png")
 
   table.insert(eyes, new_eye(.2, 50, 350, "purple"))
@@ -40,6 +44,9 @@ function menu.load()
   add_button("survival", 152, 287, 453, 333)
   add_button("instructions", 178, 347, 428, 386)
   add_button("credits", 231, 407, 375, 446)
+
+  score = 0
+  love.audio.stop()
 end
 
 function menu.draw()
@@ -71,9 +78,11 @@ function menu.mousereleased(x,y,b)
   if mp ~= mr then
     return
   elseif mr == "play" then
-    change_state(game)
+    game_mode = new_adventure_mode()
+    change_state(chapter)
   elseif mr == "survival" then
-    --change_state(survival)
+    --game_mode = new_survival_mode()
+    --change_state(game)
   elseif mr == "instructions" then
     change_state(instructions)
   elseif mr == "credits" then
@@ -86,9 +95,11 @@ function menu.keypressed(key)
   or key == "p" or key == "P"
   or key == "g" or key == "G"
   then
-    change_state(game)
+    game_mode = new_adventure_mode()
+    change_state(chapter)
   elseif key == "s" or key == "S" then
-    --change_state(survival)
+    game_mode = new_survival_mode()
+    change_state(game)
   elseif key == "i" or key == "I" then
     change_state(instructions)
   elseif key == "c" or key == "C" then

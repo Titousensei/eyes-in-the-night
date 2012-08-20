@@ -3,8 +3,6 @@ credits = {}
 local credits_img
 
 function credits.load()
-  love.graphics.setBackgroundColor(0,0,0)
-
   credits_img = love.graphics.newImage("assets/credits_bg.png")
 end
 

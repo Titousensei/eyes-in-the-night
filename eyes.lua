@@ -2,7 +2,7 @@ local eye_data = {}
 local blink_img = {}
 local wound_img = {}
 
-local eye_colors = {}
+eye_colors = {}
 
 local function load(color, maxwound, points)
   local bg = love.graphics.newImage("assets/"..color.."0.png")

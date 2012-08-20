@@ -5,11 +5,14 @@ local state = nil
 
 function change_state(s)
   state = s
+  print ("State:",s)
   state.load()
 end
 
 function love.load()
   math.randomseed(os.time())
+
+  love.graphics.setBackgroundColor(0,0,0)
 
   default_font = love.graphics.newImageFont("assets/font.png",
     " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?/=+-()*^'&")
@@ -17,11 +20,10 @@ function love.load()
 
   sound_no = love.audio.newSource("assets/no.mp3", "static")
   sound_no_long = love.audio.newSource("assets/no_long.mp3", "static")
-  sound_lost1 = love.audio.newSource("assets/lost1.mp3", "static")
+  sound_lost = love.audio.newSource("assets/lost1.mp3", "static")
   sound_lost_all = love.audio.newSource("assets/lost_all.mp3", "static")
 
   init_eyes()
-
   change_state(menu)
 end
 
