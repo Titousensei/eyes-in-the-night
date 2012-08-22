@@ -17,8 +17,8 @@ function instructions.draw()
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(instructions_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
 
-  love.graphics.printf("Repel all the purple eyes to win the level and get 1 extra ball. "
-    .. "You can have a maximum of 3 balls in reserve.",
+  love.graphics.printf("Repel all the purple eyes to win the level. "
+    .. "Get an extra ball every 3 levels, with a maximum of 3 in reserve.",
       50, 210, 500, "left")
 
   love.graphics.print("dies on the first hit\nand gives 1 point.", 150, 350)
