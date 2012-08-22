@@ -3,13 +3,12 @@ require "instructions"
 require "chapter"
 require "game"
 require "game_mode"
---require "survival"
 
 menu = {}
-
 local menu_img
 local buttons = {}
 local eyes = {}
+score = 0
 
 local function survival_init_map() end
 local function survival_end_condition() return false end
@@ -35,18 +34,21 @@ end
 
 function menu.load()
   menu_img = love.graphics.newImage("assets/menu1.png")
+  cont_img = love.graphics.newImage("assets/menu_cont.png")
+  surv_img = love.graphics.newImage("assets/menu_surv.png")
 
-  table.insert(eyes, new_eye(.2, 50, 350, "purple"))
+  table.insert(eyes, new_eye(.2, 50, 420, "purple"))
   table.insert(eyes, new_eye(.3, 550, 60, "green"))
-  table.insert(eyes, new_eye(.15, 450, 550, "brown"))
+  table.insert(eyes, new_eye(.15, 500, 530, "brown"))
 
-  add_button("play", 192, 228, 414, 272)
-  add_button("survival", 152, 287, 453, 333)
-  add_button("instructions", 178, 347, 428, 386)
-  add_button("credits", 231, 407, 375, 446)
+  add_button("continue", 88, 221, 527, 262)
+  add_button("new", 145, 283, 470, 322)
+  add_button("survival", 107, 340, 508, 391)
+  add_button("instructions", 182, 402, 432, 441)
+  add_button("credits", 235, 462, 379, 501)
 
-  score = 0
   love.audio.stop()
+  music_current = nil
 end
 
 function menu.draw()
@@ -59,7 +61,21 @@ function menu.draw()
     v:draw(mx,my)
   end
 
-  --[[
+  if userdata.chapter > 1 then
+    love.graphics.draw(cont_img, 88, 221, 0.0, 1.0, 1.0, 0, 0)
+    love.graphics.setColor(255, 255, 255, 105)
+    love.graphics.printf("Lvl\n"..userdata.chapter, 525, 221, 80, "center")
+    love.graphics.setColor(255, 255, 255, 255)
+  end
+
+  if userdata.survival then
+    love.graphics.draw(surv_img, 107, 340, 0.0, 1.0, 1.0, 0, 0)
+    love.graphics.setColor(255, 255, 255, 105)
+    love.graphics.printf("Best\n"..userdata.best, 520, 340, 80, "center")
+    love.graphics.setColor(255, 255, 255, 255)
+  end
+
+  -- [[
   mb = find_button(mx,my)
   if mb then
     local box = buttons[mb]
@@ -68,7 +84,27 @@ function menu.draw()
   --]]
 end
 
-function menu.update(dt)
+function menu.update(dt) end
+
+local function do_continue()
+  game_mode = new_adventure_mode()
+  set_chapter(userdata.chapter)
+  game_mode.num_ball = userdata.balls
+  score = userdata.score
+  change_state(chapter)
+end
+
+local function do_newgame()
+  game_mode = new_adventure_mode()
+  set_chapter(1)
+  score = 0
+  change_state(chapter)
+end
+
+local function do_survival()
+  game_mode = new_survival_mode()
+  score = 0
+  change_state(game)
 end
 
 function menu.mousereleased(x,y,b)
@@ -77,12 +113,12 @@ function menu.mousereleased(x,y,b)
 
   if mp ~= mr then
     return
-  elseif mr == "play" then
-    game_mode = new_adventure_mode()
-    change_state(chapter)
-  elseif mr == "survival" then
-    --game_mode = new_survival_mode()
-    --change_state(game)
+  elseif userdata.chapter > 1 and mr == "continue" then
+    do_continue()
+  elseif mr == "new" then
+    do_newgame()
+  elseif userdata.survival and mr == "survival" then
+    do_survival()
   elseif mr == "instructions" then
     change_state(instructions)
   elseif mr == "credits" then
@@ -91,19 +127,23 @@ function menu.mousereleased(x,y,b)
 end
 
 function menu.keypressed(key)
-  if key == "return"
-  or key == "p" or key == "P"
-  or key == "g" or key == "G"
+  if userdata.chapter > 1 and (
+    key == "return"
+    or key == "p" or key == "P"
+    or key == "g" or key == "G"
+  )
   then
-    game_mode = new_adventure_mode()
-    change_state(chapter)
-  elseif key == "s" or key == "S" then
-    game_mode = new_survival_mode()
-    change_state(game)
+    do_continue()
+  elseif key == "n" or key == "N" then
+    do_newgame()
+  elseif userdata.survival and (key == "s" or key == "S") then
+    do_survival()
   elseif key == "i" or key == "I" then
     change_state(instructions)
   elseif key == "c" or key == "C" then
     change_state(credits)
   end
+  --if key=="1" then userdata.chapter = 2 - userdata.chapter end
+  --if key=="2" then userdata.survival = not userdata.survival end
 end
 
