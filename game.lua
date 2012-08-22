@@ -167,7 +167,7 @@ do_grow = function()
   print "... do_grow"
   update_fn = update_grow
 
-  local r = math.min(ball.x, play_w - ball.x , ball.y, play_h0 - ball.y)
+  local r = math.min(ball.x, play_w - ball.x, ball.y, play_h0 - ball.y)
 
   for _, v in pairs(eyes) do
     local dx = ball.x - v.x
@@ -176,14 +176,19 @@ do_grow = function()
     r = math.min(r, dr)
   end
 
-  print ("Grow to:", r)
+  if ball.y>play_h1 then
+    print "Won't grow in safe zone"
+    do_wait()
+  else
+    print ("Grow to:", r)
 
-  ball.speed = 0
-  ball.dx = 0
-  ball.dy = 0
+    ball.speed = 0
+    ball.dx = 0
+    ball.dy = 0
 
-  grow.size = 0.1
-  grow.max_size = r/160
+    grow.size = 0.1
+    grow.max_size = r/160
+  end
 end
 
 do_gameover = function()
