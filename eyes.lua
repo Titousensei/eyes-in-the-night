@@ -32,10 +32,7 @@ function init_eyes()
   load("purple", 3, 10)
 end
 
-
--- returns 0: nothing, 1: bounce, -1: eye dead
-local function bounce(v, ball, dt)
-  local ret = -1
+local function bounce(v, ball)
   local dx = (v.x - ball.x)
   local dy = (v.y - ball.y)
 
@@ -76,6 +73,11 @@ local function bounce(v, ball, dt)
 
     v.dblink = 30
   end
+end
+
+-- returns -1: nothing, 0: wound, >0: score, eye dead
+local function update(v, dt)
+  local ret = -1
 
   if v.dblink ~= 0 then
     v.blink = v.blink + v.dblink * dt
@@ -141,7 +143,8 @@ function new_eye(sz, x0, y0, col)
     blink = 0,
     dblink = 0,
     draw = draw,
-    bounce = bounce
+    bounce = bounce,
+    update = update
   }
 
   return e

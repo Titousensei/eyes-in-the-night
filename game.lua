@@ -51,6 +51,27 @@ end
 
 --=== Update Functions ===---
 
+local function update_eyes(dt)
+  for k, v in pairs(eyes) do
+    local b = v:update(dt)
+
+    if b == 0 then
+      print ("Bounce eye number:", k)
+      love.audio.play(sound_no)
+    elseif b > 0  then
+      game_mode.delete_eye(eyes[k].color)
+      eyes[k] = nil
+      score = score + b
+      print ("Delete eye:",k, "points", b)
+      love.audio.play(sound_no_long)
+      if game_mode.end_condition() then
+        do_victory()
+        return
+      end
+    end
+  end
+end
+
 local function update_wait(dt)
   aim.angle = aim.angle + dt * aim.direction
   if aim.angle > 1.45 then
@@ -61,6 +82,7 @@ local function update_wait(dt)
     aim.angle = -2.9 - aim.angle
     aim.direction = aim_speed
   end
+  update_eyes(dt)
 end
 
 local function update_shoot(dt)
@@ -85,34 +107,21 @@ local function update_shoot(dt)
     ball.dy = - ball.dy
   elseif ball.y > play_h1 and ball.dy < 0 then
     do_gameover()
+    return
   end
 
   -- bounce on eyes
   for k, v in pairs(eyes) do
-    local b = v:bounce(ball, dt)
-
-    if b == 0 then
-      print ("Bounce eye number:", k)
-      love.audio.play(sound_no)
-    elseif b > 0  then
-      game_mode.delete_eye(eyes[k].color)
-      eyes[k] = nil
-      score = score + b
-      print ("Delete eye:",k, "points", b)
-      love.audio.play(sound_no_long)
-      if game_mode.end_condition() then
-        do_victory()
-      end
-    end
+    v:bounce(ball)
   end
+  update_eyes(dt)
 
   ball.speed = ball.speed * friction
 
-  if ball.speed==0 then
-    print "FIXME: ball.speed=0"
-  elseif ball.speed < 5.0 then
+  if ball.speed < 5.0 then
     print ("Stopped at speed:", ball.speed)
     do_grow()
+    return
   end
 end
 
@@ -160,7 +169,7 @@ do_grow = function()
 
   local r = math.min(ball.x, play_w - ball.x , ball.y, play_h0 - ball.y)
 
-  for k, v in pairs(eyes) do
+  for _, v in pairs(eyes) do
     local dx = ball.x - v.x
     local dy = ball.y - v.y
     local dr = math.sqrt(dx*dx+dy*dy) - v.radius
@@ -188,6 +197,7 @@ do_gameover = function()
     love.audio.stop()
     love.audio.play(sound_lost_all)
     update_fn = update_gameover
+    game_mode.gameover()
   end
 end
 
@@ -223,7 +233,7 @@ function game.draw()
   if pause then
     love.graphics.draw(pause_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
   else
-    for k, v in pairs(eyes) do
+    for _, v in pairs(eyes) do
       v:draw(ball.x, ball.y)
     end
 
@@ -276,6 +286,7 @@ function game.mousereleased(x,y,b)
     change_state(menu)
   elseif update_fn == update_victory then
     next_chapter()
+    change_state(chapter)
   elseif (b == "r") then
     pause = not pause
   elseif update_fn == update_wait then
