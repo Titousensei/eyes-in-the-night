@@ -1,4 +1,4 @@
-local num_purple = 0
+local num_purple
 
 game_mode = nil
 
@@ -12,6 +12,11 @@ local function init_survival()
   src:setVolume(0.5)
   src:setLooping(true)
   love.audio.play(src)
+end
+
+local function gameover_survival()
+  userdata.best = score
+  save_userdata()
 end
 
 --=== end_condition Functions ===---
@@ -37,7 +42,6 @@ function adventure_new_eye1(sz, x, y, col)
   if col == "purple" then
     num_purple = num_purple + 1
   end
-print("+++ Num purple:",num_purple)
   return new_eye(sz, x, y, col)
 end
 
@@ -46,7 +50,6 @@ function adventure_new_eye2(sz, x, y, col)
   if col == "purple" then
     num_purple = num_purple + 1
   end
-print("*** Num purple:",num_purple)
   return new_eye(sz, x, y, col)
 end
 
@@ -66,11 +69,13 @@ function new_survival_mode()
     new_eye = survival_new_eye,
     delete_eye = function() end,
     bg_img = img,
-    caption = "Survive as long as possible,\nscore as much as possible"
+    caption = "Survive as long as possible,\nscore as much as possible",
+    gameover = gameover_survival
   }
 end
 
 function new_adventure_mode()
+  num_purple = 0
   return {
     num_ball = 1,
     init_map = nil,
@@ -78,7 +83,8 @@ function new_adventure_mode()
     new_eye = adventure_new_eye1,
     delete_eye = adventure_delete_eye,
     bg_img = nil,
-    caption = "Repel the Purple Eye"
+    caption = "Repel the Purple Eye",
+    gameover = function() end
   }
 end
 
