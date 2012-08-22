@@ -31,6 +31,8 @@ most common aspect ratio 5:3
 
 function love.conf(t)
   t.title = "Eyes in the night"
+  t.identity = "eyes_in_the_night"
+  --t.version = "0.8.0"
   t.screen.width = 600
   t.screen.height = 600
   t.modules.audio = true
