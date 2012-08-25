@@ -37,9 +37,9 @@ function menu.load()
   cont_img = love.graphics.newImage("assets/menu_cont.png")
   surv_img = love.graphics.newImage("assets/menu_surv.png")
 
-  table.insert(eyes, new_eye(.2, 50, 420, "purple"))
+  table.insert(eyes, new_eye(.2, 50, 410, "purple"))
   table.insert(eyes, new_eye(.3, 550, 60, "green"))
-  table.insert(eyes, new_eye(.15, 500, 530, "brown"))
+  table.insert(eyes, new_eye(.15, 480, 460, "brown"))
 
   add_button("continue", 88, 221, 527, 262)
   add_button("new", 145, 283, 470, 322)
@@ -61,21 +61,27 @@ function menu.draw()
     v:draw(mx,my)
   end
 
-  if userdata.chapter > 1 then
+  if userdata.level > 1 then
     love.graphics.draw(cont_img, 88, 221, 0.0, 1.0, 1.0, 0, 0)
     love.graphics.setColor(255, 255, 255, 105)
-    love.graphics.printf("Lvl\n"..userdata.chapter, 525, 221, 80, "center")
+    love.graphics.printf("Lvl\n"..userdata.level, 525, 221, 80, "center")
     love.graphics.setColor(255, 255, 255, 255)
   end
 
   if userdata.survival then
     love.graphics.draw(surv_img, 107, 340, 0.0, 1.0, 1.0, 0, 0)
-    love.graphics.setColor(255, 255, 255, 105)
-    love.graphics.printf("Best\n"..userdata.best, 520, 340, 80, "center")
+    love.graphics.setColor(255, 255, 255, 160)
+    love.graphics.printf("Best Survival\n"..userdata.best.." points", 310, 540, 300, "center")
     love.graphics.setColor(255, 255, 255, 255)
   end
 
-  -- [[
+  if userdata.adventure>=0 then
+    love.graphics.setColor(255, 255, 255, 160)
+    love.graphics.printf("Best Adventure\n"..userdata.adventure.." continues", 10, 540, 300, "center")
+    love.graphics.setColor(255, 255, 255, 255)
+  end
+
+  --[[
   mb = find_button(mx,my)
   if mb then
     local box = buttons[mb]
@@ -88,15 +94,17 @@ function menu.update(dt) end
 
 local function do_continue()
   game_mode = new_adventure_mode()
-  set_chapter(userdata.chapter)
+  set_level(userdata.level)
   game_mode.num_ball = userdata.balls
   score = userdata.score
+  userdata.continue = userdata.continue + 1
+  save_userdata()
   change_state(chapter)
 end
 
 local function do_newgame()
   game_mode = new_adventure_mode()
-  set_chapter(1)
+  set_level(1)
   score = 0
   change_state(chapter)
 end
@@ -113,7 +121,7 @@ function menu.mousereleased(x,y,b)
 
   if mp ~= mr then
     return
-  elseif userdata.chapter > 1 and mr == "continue" then
+  elseif userdata.level > 1 and mr == "continue" then
     do_continue()
   elseif mr == "new" then
     do_newgame()
@@ -127,7 +135,7 @@ function menu.mousereleased(x,y,b)
 end
 
 function menu.keypressed(key)
-  if userdata.chapter > 1 and (
+  if userdata.level > 1 and (
     key == "return"
     or key == "p" or key == "P"
     or key == "g" or key == "G"
@@ -143,7 +151,7 @@ function menu.keypressed(key)
   elseif key == "c" or key == "C" then
     change_state(credits)
   end
-  --if key=="1" then userdata.chapter = 2 - userdata.chapter end
+  --if key=="1" then userdata.level = 2 - userdata.level end
   --if key=="2" then userdata.survival = not userdata.survival end
 end
 

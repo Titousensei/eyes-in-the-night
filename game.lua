@@ -17,10 +17,12 @@ local grow = {}
 
 local eyes
 local aim
---local score
 local caption_alpha
+local caption_text
 
 local pause = false
+local lost = false
+local lost_x = 0
 
 --=== Forward Declarations ===---
 
@@ -28,6 +30,7 @@ local do_wait
 local do_shoot
 local do_grow
 local do_gameover
+local do_lost
 
 --=== Init Functions ===---
 
@@ -37,7 +40,6 @@ local function reset()
     angle = 0,
     direction = aim_speed
   }
-  caption_alpha = 300
 
   game_mode.init_map()
 
@@ -47,6 +49,11 @@ end
 
 function map_eye(sz, x, y, color)
   table.insert(eyes, game_mode.new_eye(sz, x, y, color))
+end
+
+function new_caption(txt)
+  caption_alpha = 330
+  caption_text  = txt
 end
 
 --=== Update Functions ===---
@@ -61,13 +68,18 @@ local function update_eyes(dt)
     elseif b > 0  then
       game_mode.delete_eye(eyes[k].color)
       eyes[k] = nil
+      local coef = 30
+      if score > 120 then
+        coef = 50
+      end
+      local next_ball = math.ceil((score+1)/coef)*coef
       score = score + b
+      if score >= next_ball and game_mode.num_ball < 3 then
+        game_mode.num_ball = game_mode.num_ball + 1
+        new_caption("* 1UP at "..next_ball.." *")
+      end
       print ("Delete eye:",k, "points", b)
       love.audio.play(sound_no_long)
-      if game_mode.end_condition() then
-        do_victory()
-        return
-      end
     end
   end
 end
@@ -130,17 +142,37 @@ local function update_grow(dt)
 
   if grow.size >= .5 then
     map_eye(grow.max_size, ball.x, ball.y)
-    do_wait()
+    if lost then
+      do_lost()
+    else
+      do_wait()
+    end
   end
 end
 
 local function update_gameover(dt) end
 local function update_victory(dt) end
 
+local function update_lost(dt)
+  ball.x = ball.x - 120 *dt
+  local dy = ball.x - lost_x
+  local dx = start_x - lost_x
+  ball.y = start_y - 30*(1-dy*dy/(dx*dx))
+  if ball.x <= start_x then
+    ball.x = start_x
+    do_wait()
+  end
+end
+
 --=== Switch functions ===---
 
 do_wait = function()
   print "... do_wait"
+  if game_mode.end_condition() then
+    do_victory()
+    return
+  end
+
   update_fn = update_wait
 
   grow.size = 0
@@ -178,7 +210,11 @@ do_grow = function()
 
   if ball.y>play_h1 then
     print "Won't grow in safe zone"
-    do_wait()
+    if lost then
+      do_lost()
+    else
+      do_wait()
+    end
   else
     print ("Grow to:", r)
 
@@ -196,6 +232,7 @@ do_gameover = function()
   if game_mode.num_ball >= 1 then
     game_mode.num_ball = game_mode.num_ball - 1
     love.audio.play(sound_lost)
+    lost = true
     do_grow()
   else
     print ("Lost:",score)
@@ -207,11 +244,15 @@ do_gameover = function()
 end
 
 do_victory = function()
-  if game_mode.num_ball < 3 then
-    game_mode.num_ball = game_mode.num_ball + .334
-  end
   print ("Victory:",score)
   update_fn = update_victory
+end
+
+do_lost = function()
+  ball.x = start_x+13+game_mode.num_ball*45+45
+  ball.y = start_y
+  lost_x = (ball.x + start_x)/2
+  update_fn = update_lost
 end
 
 --=== CALLBACKS ===---
@@ -228,6 +269,7 @@ function game.load()
 
   print "Assets Loaded"
   reset()
+  new_caption(game_mode.caption)
 end
 
 function game.draw()
@@ -272,7 +314,7 @@ function game.draw()
 
       if caption_alpha>0 then
         love.graphics.setColor(255, 255, 255, math.min(caption_alpha,255))
-        love.graphics.printf(game_mode.caption, 50, 200+caption_alpha/3, 500, "center")
+        love.graphics.printf(caption_text, 50, 200+caption_alpha/3, 500, "center")
       end
     end
   end
@@ -280,8 +322,8 @@ end
 
 function game.update(dt)
   if pause then return end
-  if game_mode.caption then
-    caption_alpha = caption_alpha - 120*dt
+  if caption_alpha>0 then
+    caption_alpha = caption_alpha - 110*dt
   end
   update_fn(dt)
 end
@@ -290,7 +332,7 @@ function game.mousereleased(x,y,b)
   if update_fn == update_gameover then
     change_state(menu)
   elseif update_fn == update_victory then
-    next_chapter()
+    next_level()
     change_state(chapter)
   elseif (b == "r") then
     pause = not pause
@@ -303,7 +345,7 @@ function game.keypressed(key)
   if update_fn == update_gameover then
     change_state(menu)
   elseif update_fn == update_victory then
-    next_chapter()
+    next_level()
     change_state(chapter)
   elseif (key == "p") then
     pause = not pause

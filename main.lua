@@ -5,15 +5,18 @@ require "libuserdata"
 local file_userdata = "userdata.tsv"
 
 userdata = nil
+first_time = 0
 
 local default_userdata = {
   -- survival
   best = 0,
   survival = false,
   -- adventure
-  chapter = 0,
+  level = 0,
   balls = 0,
-  score = 0
+  score = 0,
+  continue = 0,
+  adventure = -1
 }
 
 local state = nil
@@ -44,6 +47,7 @@ function love.load()
   if not userdata then
     print "Using default userdata"
     userdata = default_userdata
+    first_time = 1
   end
 
   init_eyes()
@@ -78,13 +82,15 @@ end
 
 function love.keypressed(key)
   if key == "escape" then
-    if love.event.quit then
-      love.event.quit() -- 0.8
+    if state==menu then
+      if love.event.quit then
+        love.event.quit() -- 0.8
+      else
+        love.event.push("q") -- 0.7
+      end
     else
-      love.event.push("q") -- 0.7
+      change_state(menu)
     end
-  elseif key == "q" or key == "Q" then
-    change_state(menu)
   else
     state.keypressed(key)
   end
