@@ -16,6 +16,8 @@ function credits.draw()
   love.graphics.print("Kevin MacLeod", 150, 360)
   love.graphics.print("Original Concept:", 130, 410)
   love.graphics.print("Wouter Visser", 150, 440)
+
+  --love.graphics.print("http://www.rti-zone.org/eyes-in-the-night", 10, 580,0,.7,.7)
 end
 
 function credits.update(dt)
