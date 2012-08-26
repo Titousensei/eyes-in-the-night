@@ -23,7 +23,7 @@ local state = nil
 
 function change_state(s)
   state = s
-  print ("State:",s)
+  --print ("State:",s)
   state.load()
 end
 
@@ -74,6 +74,9 @@ function love.mousepressed(x,y,b)
   mousex = x
   mousey = y
   mouseb = b
+  if state.mousepressed then
+    state.mousepressed(x,y,b)
+  end
 end
 
 function love.mousereleased(x,y,b)
