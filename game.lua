@@ -40,6 +40,8 @@ local function reset()
     angle = 0,
     direction = aim_speed
   }
+  grow.size = 0
+  lost = false
 
   game_mode.init_map()
 
@@ -66,18 +68,8 @@ local function update_eyes(dt)
       print ("Bounce eye number:", k)
       love.audio.play(sound_no)
     elseif b > 0  then
-      game_mode.delete_eye(eyes[k].color)
+      score = game_mode.delete_eye(eyes[k].color, score,  b)
       eyes[k] = nil
-      local coef = 30
-      if score > 120 then
-        coef = 50
-      end
-      local next_ball = math.ceil((score+1)/coef)*coef
-      score = score + b
-      if score >= next_ball and game_mode.num_ball < 3 then
-        game_mode.num_ball = game_mode.num_ball + 1
-        new_caption("* 1UP at "..next_ball.." *")
-      end
       print ("Delete eye:",k, "points", b)
       love.audio.play(sound_no_long)
     end
@@ -94,7 +86,6 @@ local function update_wait(dt)
     aim.angle = -2.9 - aim.angle
     aim.direction = aim_speed
   end
-  update_eyes(dt)
 end
 
 local function update_shoot(dt)
@@ -118,6 +109,7 @@ local function update_shoot(dt)
     ball.y = 30 - ball.y
     ball.dy = - ball.dy
   elseif ball.y > play_h1 and ball.dy < 0 then
+    ball.y = play_h1
     do_gameover()
     return
   end
@@ -126,7 +118,6 @@ local function update_shoot(dt)
   for k, v in pairs(eyes) do
     v:bounce(ball)
   end
-  update_eyes(dt)
 
   ball.speed = ball.speed * friction
 
@@ -141,6 +132,7 @@ local function update_grow(dt)
   grow.size = grow.size + dt
 
   if grow.size >= .5 then
+    grow.size = 0
     map_eye(grow.max_size, ball.x, ball.y)
     if lost then
       do_lost()
@@ -160,6 +152,7 @@ local function update_lost(dt)
   ball.y = start_y - 30*(1-dy*dy/(dx*dx))
   if ball.x <= start_x then
     ball.x = start_x
+    lost = false
     do_wait()
   end
 end
@@ -174,8 +167,6 @@ do_wait = function()
   end
 
   update_fn = update_wait
-
-  grow.size = 0
 
   ball.x = start_x
   ball.y = start_y
@@ -209,13 +200,16 @@ do_grow = function()
   end
 
   if ball.y>play_h1 then
-    print "Won't grow in safe zone"
+    print ("Won't grow in safe zone",ball.y,play_h1)
     if lost then
       do_lost()
     else
       do_wait()
     end
   else
+    if r<15 then
+      r = 15
+    end
     print ("Grow to:", r)
 
     ball.speed = 0
@@ -325,7 +319,16 @@ function game.update(dt)
   if caption_alpha>0 then
     caption_alpha = caption_alpha - 110*dt
   end
+  update_eyes(dt)
   update_fn(dt)
+end
+
+function game.mousepressed(x,y,b)
+  if update_fn == update_wait then
+    do_shoot()
+  elseif (b == "r") then
+    pause = not pause
+  end
 end
 
 function game.mousereleased(x,y,b)
@@ -334,10 +337,6 @@ function game.mousereleased(x,y,b)
   elseif update_fn == update_victory then
     next_level()
     change_state(chapter)
-  elseif (b == "r") then
-    pause = not pause
-  elseif update_fn == update_wait then
-    do_shoot()
   end
 end
 
