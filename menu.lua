@@ -61,7 +61,7 @@ function menu.draw()
     v:draw(mx,my)
   end
 
-  if userdata.level > 1 then
+  if userdata.level > 1 and userdata.level < 34 then
     love.graphics.draw(cont_img, 88, 221, 0.0, 1.0, 1.0, 0, 0)
     love.graphics.setColor(255, 255, 255, 105)
     love.graphics.printf("Lvl\n"..userdata.level, 525, 221, 80, "center")
@@ -121,7 +121,7 @@ function menu.mousereleased(x,y,b)
 
   if mp ~= mr then
     return
-  elseif userdata.level > 1 and mr == "continue" then
+  elseif userdata.level > 1 and userdata.level < 34 and mr == "continue" then
     do_continue()
   elseif mr == "new" then
     do_newgame()
@@ -135,7 +135,7 @@ function menu.mousereleased(x,y,b)
 end
 
 function menu.keypressed(key)
-  if userdata.level > 1 and (
+  if userdata.level > 1 and userdata.level < 34 and (
     key == "return"
     or key == "p" or key == "P"
     or key == "g" or key == "G"
