@@ -1,6 +1,14 @@
+--[[
+This source code is provided for educational purposes only.
+
+If you like reading the source code of this game, please consider supporting
+then author by buying the game at http://www.rti-zone.org/eyes-in-the-night/
+]]
+
 local bg_img
 
 local level = 1
+local alpha = 0
 
 function next_level()
   if level == 1 then
@@ -92,9 +100,11 @@ end
 
 --Ch5 path -- L13 L14 L15
 local function init_map13()
-  map_eye(.2, 150, 150, "purple")
-  map_eye(.2, 450, 150, "purple")
-  map_eye(.1, 300, 250, "purple")
+  map_eye(.3, 120, 200, "purple")
+  map_eye(.3, 480, 200, "purple")
+  map_eye(.3, 300, 150, "purple")
+  map_eye(.3, 160, 300, "brown")
+  map_eye(.3, 440, 300, "brown")
 end
 
 local function init_map14()
@@ -105,11 +115,9 @@ local function init_map14()
 end
 
 local function init_map15()
-  map_eye(.3, 120, 200, "purple")
-  map_eye(.3, 480, 200, "purple")
-  map_eye(.3, 300, 150, "purple")
-  map_eye(.3, 160, 300, "brown")
-  map_eye(.3, 440, 300, "brown")
+  map_eye(.2, 180, 150, "purple")
+  map_eye(.2, 480, 150, "purple")
+  map_eye(.1, 330, 250, "purple")
 end
 
 --Ch6 bridge -- L16 L17 L18
@@ -135,29 +143,138 @@ end
 
 --Ch7 to the cliff -- L19 L20 L21
 local function init_map19()
-  map_eye(.5, 250, 150, "purple")
-  map_eye(.4, 350, 260, "brown")
+  map_eye(.6, 250, 150, "purple")
+  map_eye(.2, 150, 250, "brown")
+  map_eye(.4, 350, 300, "brown")
 end
 
 local function init_map20()
-  map_eye(.5, 250, 150, "purple")
-  map_eye(.5, 350, 300, "green")
+  map_eye(.9, 250, 150, "purple")
+  map_eye(.3, 110, 290, "brown")
+  map_eye(.5, 350, 350, "green")
 end
 
 local function init_map21()
   map_eye(.4, 250, 150, "purple")
   map_eye(.6, 350, 350, "green")
-  map_eye(.2, 150, 250, "brown")
-  map_eye(.2, 450, 220, "brown")
+  map_eye(.4, 150, 250, "brown")
+  map_eye(.4, 450, 220, "brown")
 end
 
 --Ch8 cliff -- L22 L23 L24
+local function init_map22()
+  map_eye(.3,  50, 150, "purple")
+  map_eye(.3,  50, 250, "brown")
+  map_eye(.3, 550, 150, "green")
+  map_eye(.3, 550, 250, "brown")
+end
+
+local function init_map23()
+  map_eye(.3,  50, 150, "purple")
+  map_eye(.3,  150, 250, "brown")
+  map_eye(.3, 450, 150, "purple")
+  map_eye(.3, 550, 250, "brown")
+end
+
+local function init_map24()
+  map_eye(.3,  50, 120, "purple")
+  map_eye(.4,  70, 250, "green")
+  map_eye(.3, 480, 250, "purple")
+  map_eye(.4, 530, 380, "green")
+end
+
 --Ch9 stairs -- L25 L26
+local function init_map25()
+  map_eye(.2,  300, 400, "purple")
+  map_eye(.3,  150, 300, "brown")
+  map_eye(.3,  450, 300, "brown")
+end
+
+local function init_map26()
+  map_eye(.2,  200, 450, "purple")
+  map_eye(.2,  400, 450, "purple")
+  map_eye(.3,  300, 300, "brown")
+  map_eye(.2,  250, 210, "brown")
+  map_eye(.1,  200, 150, "brown")
+end
+
 --Ch10 castle -- L27
+local function init_map27()
+  map_eye(.3, 315, 200, "purple")
+  map_eye(.3, 410, 200, "purple")
+  map_eye(.2, 140, 300, "green")
+  map_eye(.2, 205, 300, "green")
+end
+
 --Ch11 wall -- L28
+local function init_map28()
+  map_eye(.3,  200, 250, "purple")
+  map_eye(.2,  300, 250, "green")
+  map_eye(.2,  270, 320, "green")
+  map_eye(.2,  200, 350, "green")
+end
+
 --Ch12 catacombs -- L29 L30
+local function init_map29()
+  map_eye(.1,  100,  50, "green")
+  map_eye(.1,  200,  50, "purple")
+  map_eye(.1,  300,  50, "green")
+  map_eye(.1,  400,  50, "green")
+  map_eye(.1,  150, 150, "brown")
+  map_eye(.1,  250, 150, "brown")
+  map_eye(.1,  350, 150, "brown")
+end
+
+local function init_map30()
+  map_eye(.1,  100,  50, "green")
+  map_eye(.1,  200,  50, "purple")
+  map_eye(.1,  300,  50, "green")
+  map_eye(.1,  400,  50, "purple")
+  map_eye(.1,  500,  50, "green")
+  map_eye(.1,  150, 150, "brown")
+  map_eye(.1,  250, 150, "brown")
+  map_eye(.1,  350, 150, "brown")
+  map_eye(.1,  450, 150, "brown")
+  map_eye(.1,  220, 250, "brown")
+  map_eye(.1,  380, 250, "brown")
+end
+
 --Ch13 inside -- L31 L32
+local function init_map31()
+  map_eye(.25, 165, 220, "brown")
+  map_eye(.25, 335, 220, "brown")
+  map_eye(.2,  250, 240, "purple")
+  map_eye(.25, 200, 310, "brown")
+  map_eye(.25, 300, 310, "brown")
+  map_eye(.25, 250, 150, "brown")
+  map_eye(.15, 395, 265, "brown")
+  map_eye(.15, 448, 280, "brown")
+  map_eye(.15, 490, 250, "brown")
+  map_eye(.3,  510, 180, "green")
+end
+
+local function init_map32()
+  map_eye(.2,  150, 180, "green")
+  map_eye(.15, 150, 260, "purple")
+  map_eye(.2,  100, 320, "brown")
+  map_eye(.2,  200, 320, "brown")
+
+  map_eye(.2,  450, 100, "brown")
+  map_eye(.15, 450, 180, "purple")
+  map_eye(.2,  400, 240, "green")
+  map_eye(.2,  500, 240, "green")
+end
+
 --Ch14 finale -- L33
+local function init_map33()
+  map_eye(.1,  200, 100, "purple")
+  map_eye(.1,  400, 100, "purple")
+  map_eye(.6,  300, 200, "purple")
+  map_eye(.3,  150, 220, "purple")
+  map_eye(.3,  450, 220, "purple")
+  map_eye(.2,  220, 320, "purple")
+  map_eye(.2,  380, 320, "purple")
+end
 
 local map = {
   init_map1,  init_map2,  init_map3,
@@ -170,7 +287,7 @@ local map = {
   init_map22, init_map23, init_map24,
   init_map25, init_map26, init_map27,
   init_map28, init_map29, init_map30,
-  init_map31, init_map31, init_map33
+  init_map31, init_map32, init_map33
 }
 
 local texts = {
@@ -223,16 +340,15 @@ local texts = {
   "Chapter 13\n\nI'm inside the castle! My whole body is shaking, "
   .. "not from fear, but from rage. I'm so close to get my revenge.", nil,
   -- L33
-  "Chapter 14\n\n\"Who are you to disturb the Master of the Beasts\" said a demoniacal voice\n\n"
-  .. "The monster is right in front of me. He's big. He's strong. His minions are surrounding me."
-  .. "\n\nThis is the final battle, the moment of truth.",
+  "Chapter 14\n\n^Who are you to disturb the Master of the Beasts^ said a demoniacal voice\n\n"
+  .. "The monster is right in front of me. He's big. He's strong."
+  .. "\n\nThis is the moment of truth, the final battle.",
   -- L34
   "Chapter 15\n\nI have killed the Master of the Beasts, the demon who destroyed "
-  .. "my village and devoured my family so long ago. But my revenge leaves bittersweet"
-  .. "taste in my mouth: I am now an old man, wounded and alone.\n\nAnd I have "
-  .. "nothing to live for anymore ...\n\n      ... I think I can find some peace "
-  .. "in the fact that families are safe from this horrible monster."
-  .. "\n\n\n            THE END"
+  .. "my village and devoured my family so long ago. But my revenge leaves bittersweet "
+  .. "taste in my mouth. I have nothing to live for anymore ...\n"
+  .. "I hope I can find some peace in the fact that families "
+  .. "are now safe from this horrible monster."
 }
 
 local backgrounds = {
@@ -278,7 +394,7 @@ local music = {
   -- L10 L11 L12
   "music/Halls of the Undead.mp3", "music/Halls of the Undead.mp3", "music/Halls of the Undead.mp3",
   -- L13 L14 L15
-  "music/Pop Goes the Weasel.mp3", "music/Pop Goes the Weasel.mp3", "music/Pop Goes the Weasel.mp3",
+  "music/Return of Lazarus.mp3", "music/Return of Lazarus.mp3", "music/Return of Lazarus.mp3",
   -- L16 L17 L18
   "music/The Path of the Goblin King.mp3", "music/The Path of the Goblin King.mp3", "music/The Path of the Goblin King.mp3",
   -- L19 L20 L21
@@ -311,7 +427,7 @@ function chapter.load()
   print ("=== Level:",level)
   game_mode.bg_img = love.graphics.newImage(backgrounds[level])
   game_mode.init_map = map[level]
-  if not texts[level] then change_state(game) end
+
   if level==1 or music_current ~= music[level] then
     love.audio.stop()
     music_current = music[level]
@@ -320,11 +436,19 @@ function chapter.load()
     src:setLooping(true)
     love.audio.play(src)
   end
-  if level>10 then
+  if level>=20 then
+    game_mode.new_eye = adventure_new_eye3
+  elseif level>=10 then
     game_mode.new_eye = adventure_new_eye2
   end
 
-  if level > 6 then
+  if level == 34 then
+    alpha = 500
+    userdata.level = 1
+    if userdata.adventure > userdata.continue then
+      userdata.adventure = userdata.continue
+    end
+  elseif level > 6 then
     game_mode.caption = "Level "..level.."\nRepel all the Purple Eyes"
   elseif level == 6 then
     userdata.survival = true
@@ -339,32 +463,43 @@ function chapter.load()
     userdata.score = score
     save_userdata()
   end
+
+  if not texts[level] then change_state(game) end
 end
 
 function chapter.draw()
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(game_mode.bg_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
+  --love.graphics.print(alpha, 10, 10)
+  if level == 34 then
+    love.graphics.printf("\n\nI have killed the Master of the Beasts"
+        .. "\n\n\n\n\n\n\nI hope I can find some peace", 50, 100, 500, "left")
+    love.graphics.setColor(255, 255, 255, math.min(alpha,255))
+    love.graphics.print("THE END", 400, 550)
+  end
   love.graphics.printf(texts[level], 50, 100, 500, "left")
 end
 
-function chapter.update(dt) end
-
-function chapter.mousereleased(x,y,b)
-  if level < 34 then
-    change_state(game)
+function chapter.update(dt)
+  if alpha>6 then
+    alpha = alpha*.998
   else
-    change_state(menu)
+    alpha = 0
   end
 end
 
-function chapter.keypressed(key)
+local function any_key()
   if level==1 and first_time == 1 then
     first_time = 2
     change_state(instructions)
   elseif level < 34 then
     change_state(game)
-  else
+  elseif alpha<500 then
+    level = 1
     change_state(menu)
   end
 end
+
+function chapter.mousereleased(x,y,b) any_key() end
+function chapter.keypressed(key) any_key() end
 
