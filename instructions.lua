@@ -14,14 +14,9 @@ function instructions.draw()
   love.graphics.draw(instructions_img, 0, 0, 0.0, 1.0, 1.0, 0, 0)
 end
 
-function instructions.update(dt)
-end
+function instructions.update(dt) end
 
-function instructions.mousereleased(x,y,b)
-  change_state(menu)
-end
-
-function instructions.keypressed(key)
+local function any_key()
   if first_time == 2 then
     first_time = 0
     change_state(game)
@@ -29,4 +24,7 @@ function instructions.keypressed(key)
     change_state(menu)
   end
 end
+
+function instructions.mousereleased(x,y,b) any_key() end
+function instructions.keypressed(key) any_key() end
 
