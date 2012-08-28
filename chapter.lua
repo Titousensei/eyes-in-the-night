@@ -1,5 +1,6 @@
 --[[
 This source code is provided for educational purposes only.
+Copyright by Eric Gaudet.
 
 If you like reading the source code of this game, please consider supporting
 then author by buying the game at http://www.rti-zone.org/eyes-in-the-night/
@@ -9,6 +10,7 @@ local bg_img
 
 local level = 1
 local alpha = 0
+local alpha_dt = 0
 
 function next_level()
   if level == 1 then
@@ -17,6 +19,7 @@ function next_level()
   level = level + 1
 end
 function set_level(val) level = val end
+function get_level() return level end
 
 --=== Init Functions ===---
 
@@ -443,7 +446,7 @@ function chapter.load()
   end
 
   if level == 34 then
-    alpha = 500
+    alpha = 400
     userdata.level = 1
     if userdata.adventure > userdata.continue then
       userdata.adventure = userdata.continue
@@ -482,7 +485,11 @@ end
 
 function chapter.update(dt)
   if alpha>6 then
-    alpha = alpha*.998
+    alpha_dt = alpha_dt + dt
+    while alpha_dt > 0.01 do
+      alpha = alpha*.999
+      alpha_dt = alpha_dt - 0.01
+    end
   else
     alpha = 0
   end

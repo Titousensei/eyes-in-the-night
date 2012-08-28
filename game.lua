@@ -1,7 +1,15 @@
+--[[
+This source code is provided for educational purposes only.
+Copyright by Eric Gaudet.
+
+If you like reading the source code of this game, please consider supporting
+then author by buying the game at http://www.rti-zone.org/eyes-in-the-night/
+]]
+
 local update_fn
 local aim_speed = 1.5
 local ball_speed = 500
-local friction = 0.99
+local friction = 0.9971
 
 play_h = love.graphics.getHeight()
 play_w = love.graphics.getWidth()
@@ -55,6 +63,7 @@ end
 
 function new_caption(txt)
   caption_alpha = 330
+  if get_level()<3 then caption_alpha = 450 end
   caption_text  = txt
 end
 
@@ -91,8 +100,15 @@ end
 local function update_shoot(dt)
   ball.x = ball.x + ball.dx * dt
   ball.y = ball.y - ball.dy * dt
-  ball.dx = ball.dx * friction
-  ball.dy = ball.dy * friction
+  ball.dt = ball.dt + dt
+
+  while ball.dt > 0.005 do
+    ball.dx = ball.dx * friction
+    ball.dy = ball.dy * friction
+    ball.speed = ball.speed * friction
+    ball.dt = ball.dt - 0.005
+  end
+
 
   if ball.x > play_w0 then
     print "Bounce right wall"
@@ -118,8 +134,6 @@ local function update_shoot(dt)
   for k, v in pairs(eyes) do
     v:bounce(ball)
   end
-
-  ball.speed = ball.speed * friction
 
   if ball.speed < 5.0 then
     print ("Stopped at speed:", ball.speed)
@@ -173,6 +187,7 @@ do_wait = function()
   ball.dx = 0
   ball.dy = 0
   ball.speed = 0
+  ball.dt = 0
 end
 
 do_shoot = function()
