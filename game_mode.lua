@@ -17,7 +17,7 @@ local survival_eye_colors = {
 
 local function init_survival()
   love.audio.stop()
-  local src = love.audio.newSource("music/Thunder Dreams.mp3", "stream")
+  local src = love.audio.newSource("music/Thunder Dreams.ogg", "stream")
   src:setVolume(0.5)
   src:setLooping(true)
   love.audio.play(src)
@@ -109,7 +109,7 @@ end
 --=== Modes ===---
 
 function new_survival_mode()
-  local img = love.graphics.newImage("assets/background.png")
+  local img = newPaddedImage("assets/background.png")
   new_high_score = true
   return {
     num_ball = 0,

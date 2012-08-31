@@ -13,8 +13,8 @@ local wound_img = {}
 eye_colors = {}
 
 local function load(color, maxwound, points)
-  local bg = love.graphics.newImage("assets/"..color.."0.png")
-  local fg = love.graphics.newImage("assets/"..color.."1.png")
+  local bg = newPaddedImage("assets/"..color.."0.png")
+  local fg = newPaddedImage("assets/"..color.."1.png")
   eye_data[color] = {
     bg = bg,
     fg = fg,
@@ -26,14 +26,14 @@ local function load(color, maxwound, points)
 end
 
 function init_eyes()
-  blink_img[1] = love.graphics.newImage("assets/blink1.png")
-  blink_img[2] = love.graphics.newImage("assets/blink2.png")
-  blink_img[3] = love.graphics.newImage("assets/blink3.png")
-  blink_img[4] = love.graphics.newImage("assets/blink4.png")
+  blink_img[1] = newPaddedImage("assets/blink1.png")
+  blink_img[2] = newPaddedImage("assets/blink2.png")
+  blink_img[3] = newPaddedImage("assets/blink3.png")
+  blink_img[4] = newPaddedImage("assets/blink4.png")
 
-  wound_img[1] = love.graphics.newImage("assets/wound1.png")
-  wound_img[2] = love.graphics.newImage("assets/wound2.png")
-  wound_img[3] = love.graphics.newImage("assets/wound3.png")
+  wound_img[1] = newPaddedImage("assets/wound1.png")
+  wound_img[2] = newPaddedImage("assets/wound2.png")
+  wound_img[3] = newPaddedImage("assets/wound3.png")
 
   load("brown",  0, 1)
   load("green",  2, 3)

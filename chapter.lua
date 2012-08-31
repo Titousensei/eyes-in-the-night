@@ -389,35 +389,35 @@ local backgrounds = {
 
 local music = {
   -- L1 L2 L3
-  "music/Land of Phantoms.mp3", "music/Land of Phantoms.mp3", "music/Land of Phantoms.mp3",
+  "music/Land of Phantoms.ogg", "music/Land of Phantoms.ogg", "music/Land of Phantoms.ogg",
   -- L4 L5 L6
-  "music/Dopplerette.mp3", "music/Dopplerette.mp3", "music/Dopplerette.mp3",
+  "music/Dopplerette.ogg", "music/Dopplerette.ogg", "music/Dopplerette.ogg",
   -- L7 L8 L9
-  "music/Oppressive Gloom.mp3", "music/Oppressive Gloom.mp3", "music/Oppressive Gloom.mp3",
+  "music/Oppressive Gloom.ogg", "music/Oppressive Gloom.ogg", "music/Oppressive Gloom.ogg",
   -- L10 L11 L12
-  "music/Halls of the Undead.mp3", "music/Halls of the Undead.mp3", "music/Halls of the Undead.mp3",
+  "music/Halls of the Undead.ogg", "music/Halls of the Undead.ogg", "music/Halls of the Undead.ogg",
   -- L13 L14 L15
-  "music/Return of Lazarus.mp3", "music/Return of Lazarus.mp3", "music/Return of Lazarus.mp3",
+  "music/Return of Lazarus.ogg", "music/Return of Lazarus.ogg", "music/Return of Lazarus.ogg",
   -- L16 L17 L18
-  "music/The Path of the Goblin King.mp3", "music/The Path of the Goblin King.mp3", "music/The Path of the Goblin King.mp3",
+  "music/The Path of the Goblin King.ogg", "music/The Path of the Goblin King.ogg", "music/The Path of the Goblin King.ogg",
   -- L19 L20 L21
-  "music/Private Reflection.mp3", "music/Private Reflection.mp3", "music/Private Reflection.mp3",
+  "music/Private Reflection.ogg", "music/Private Reflection.ogg", "music/Private Reflection.ogg",
   -- L22 L23 L24
-  "music/Thunder Dreams.mp3", "music/Thunder Dreams.mp3", "music/Thunder Dreams.mp3",
+  "music/Thunder Dreams.ogg", "music/Thunder Dreams.ogg", "music/Thunder Dreams.ogg",
   -- L25 L26
-  "music/The Chamber.mp3", "music/The Chamber.mp3",
+  "music/The Chamber.ogg", "music/The Chamber.ogg",
   -- L27
-  "music/Unnatural Situation.mp3",
+  "music/Unnatural Situation.ogg",
   -- L28
-  "music/Bump in the Night.mp3",
+  "music/Bump in the Night.ogg",
   -- L29 L30
-  "music/The Hive.mp3", "music/The Hive.mp3",
+  "music/The Hive.ogg", "music/The Hive.ogg",
   -- L31 L32
-  "music/Dance of Deception.mp3", "music/Dance of Deception.mp3",
+  "music/Dance of Deception.ogg", "music/Dance of Deception.ogg",
   -- L33
-  "music/Darkness is Coming.mp3",
+  "music/Darkness is Coming.ogg",
   -- L34
-  "music/Quinns Song-The Dance Begins.mp3"
+  "music/Quinns Song-The Dance Begins.ogg"
 }
 
 --=== CALLBACKS ===---
@@ -428,7 +428,8 @@ music_current = nil
 
 function chapter.load()
   print ("=== Level:",level)
-  game_mode.bg_img = love.graphics.newImage(backgrounds[level])
+  print("Start Memory:",gcinfo())
+  game_mode.bg_img = newPaddedImage(backgrounds[level])
   game_mode.init_map = map[level]
 
   if level==1 or music_current ~= music[level] then
@@ -457,7 +458,7 @@ function chapter.load()
     userdata.survival = true
     game_mode.caption = "Level "..level.."\nRepel the Purple Eye\n\nSurvival challenge unlocked"
   else
-    game_mode.caption = "Level "..level.."\nRepel the Purple Eye"
+    game_mode.caption = "Level "..level.."\nHit the Purple Eye 4 times"
   end
 
   if level>1 then
@@ -468,6 +469,7 @@ function chapter.load()
   end
 
   if not texts[level] then change_state(game) end
+  print("End Memory:",gcinfo())
 end
 
 function chapter.draw()

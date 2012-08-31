@@ -41,9 +41,9 @@ local function find_button(x, y)
 end
 
 function menu.load()
-  menu_img = love.graphics.newImage("assets/menu1.png")
-  cont_img = love.graphics.newImage("assets/menu_cont.png")
-  surv_img = love.graphics.newImage("assets/menu_surv.png")
+  menu_img = newPaddedImage("assets/menu1.png")
+  cont_img = newPaddedImage("assets/menu_cont.png")
+  surv_img = newPaddedImage("assets/menu_surv.png")
 
   table.insert(eyes, new_eye(.2, 50, 410, "purple"))
   table.insert(eyes, new_eye(.3, 550, 60, "green"))

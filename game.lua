@@ -11,8 +11,8 @@ local aim_speed = 1.5
 local ball_speed = 500
 local friction = 0.9971
 
-play_h = love.graphics.getHeight()
-play_w = love.graphics.getWidth()
+play_h = 600 --love.graphics.getHeight()
+play_w = 600 --love.graphics.getWidth()
 local play_h0 = play_h - 50
 local play_h1 = play_h0 - 15
 local play_w0 = play_w - 15
@@ -269,14 +269,16 @@ end
 game = {}
 
 function game.load()
-  gameover_img = love.graphics.newImage("assets/gameover.png")
-  victory_img = love.graphics.newImage("assets/victory.png")
-  pause_img = love.graphics.newImage("assets/pause.png")
+  print("Start Memory:",gcinfo())
+  gameover_img = newPaddedImage("assets/gameover.png")
+  victory_img = newPaddedImage("assets/victory.png")
+  pause_img = newPaddedImage("assets/pause.png")
 
-  grow.img = love.graphics.newImage("assets/ball1.png")
-  ball.img = love.graphics.newImage("assets/ball.png")
+  grow.img = newPaddedImage("assets/ball1.png")
+  ball.img = newPaddedImage("assets/ball.png")
 
   print "Assets Loaded"
+  print("End Memory:",gcinfo())
   reset()
   new_caption(game_mode.caption)
 end

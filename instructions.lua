@@ -14,7 +14,7 @@ local eyes = {}
 function instructions.load()
   love.graphics.setBackgroundColor(0,0,0)
 
-  instructions_img = love.graphics.newImage("assets/instructions_bg.png")
+  instructions_img = newPaddedImage("assets/instructions_bg.png")
 end
 
 function instructions.draw()

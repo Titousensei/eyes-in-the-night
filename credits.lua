@@ -11,7 +11,7 @@ credits = {}
 local credits_img
 
 function credits.load()
-  credits_img = love.graphics.newImage("assets/credits_bg.png")
+  credits_img = newPaddedImage("assets/credits_bg.png")
 end
 
 function credits.draw()

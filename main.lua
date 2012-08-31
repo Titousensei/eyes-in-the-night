@@ -39,17 +39,38 @@ function save_userdata()
   libuserdata.save(file_userdata, userdata)
 end
 
+function newPaddedImage(filename)
+  local source = love.image.newImageData(filename)
+  local w, h = source:getWidth(), source:getHeight()
+
+  -- Find closest power-of-two.
+  local wp = math.pow(2, math.ceil(math.log(w)/math.log(2)))
+  local hp = math.pow(2, math.ceil(math.log(h)/math.log(2)))
+
+  -- Only pad if needed:
+  if wp ~= w or hp ~= h then
+      local padded = love.image.newImageData(wp, hp)
+      padded:paste(source, 0, 0)
+      return love.graphics.newImage(padded)
+  end
+
+  return love.graphics.newImage(source)
+end
+
 function love.load()
+  print("Start Memory:",gcinfo())
+
   love.graphics.setBackgroundColor(0,0,0)
 
-  default_font = love.graphics.newImageFont("assets/font.png",
+  local img_font = newPaddedImage("assets/font.png")
+  local default_font = love.graphics.newImageFont(img_font,
     " 0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz.,!?/=+-()*^'&")
   love.graphics.setFont(default_font)
 
-  sound_no = love.audio.newSource("assets/no.mp3", "static")
-  sound_no_long = love.audio.newSource("assets/no_long.mp3", "static")
-  sound_lost = love.audio.newSource("assets/lost1.mp3", "static")
-  sound_lost_all = love.audio.newSource("assets/lost_all.mp3", "static")
+  sound_no = love.audio.newSource("assets/no.ogg", "static")
+  sound_no_long = love.audio.newSource("assets/no_long.ogg", "static")
+  sound_lost = love.audio.newSource("assets/lost1.ogg", "static")
+  sound_lost_all = love.audio.newSource("assets/lost_all.ogg", "static")
 
   userdata = libuserdata.load(file_userdata)
   if not userdata then
@@ -60,6 +81,7 @@ function love.load()
 
   init_eyes()
   change_state(menu)
+  print("End Memory:",gcinfo())
 end
 
 function love.draw()
