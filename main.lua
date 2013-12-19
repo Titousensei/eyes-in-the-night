@@ -40,24 +40,29 @@ function save_userdata()
 end
 
 function newPaddedImage(filename)
-  local source = love.image.newImageData(filename)
-  local w, h = source:getWidth(), source:getHeight()
+  if love._version==72 or not love._os then  -- Android?
+    local source = love.image.newImageData(filename)
+    local w, h = source:getWidth(), source:getHeight()
 
-  -- Find closest power-of-two.
-  local wp = math.pow(2, math.ceil(math.log(w)/math.log(2)))
-  local hp = math.pow(2, math.ceil(math.log(h)/math.log(2)))
+    -- Find closest power-of-two.
+    local wp = math.pow(2, math.ceil(math.log(w)/math.log(2)))
+    local hp = math.pow(2, math.ceil(math.log(h)/math.log(2)))
 
-  -- Only pad if needed:
-  if wp ~= w or hp ~= h then
-      local padded = love.image.newImageData(wp, hp)
-      padded:paste(source, 0, 0)
-      return love.graphics.newImage(padded)
+    -- Only pad if needed:
+    if wp ~= w or hp ~= h then
+        local padded = love.image.newImageData(wp, hp)
+        padded:paste(source, 0, 0)
+        return love.graphics.newImage(padded)
+    end
+
+    return love.graphics.newImage(source)
+  else
+    return love.graphics.newImage(filename)
   end
-
-  return love.graphics.newImage(source)
 end
 
 function love.load()
+  print("Love version:", love._version, love._os)
   print("Start Memory:",gcinfo())
 
   love.graphics.setBackgroundColor(0,0,0)
