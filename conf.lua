@@ -33,8 +33,10 @@ function love.conf(t)
   t.title = "Eyes in the night"
   t.identity = "eyes_in_the_night"
   --t.version = "0.8.0"
-  t.screen.width = 600
-  t.screen.height = 600
+  t.window = t.window or t.screen
+  t.window.width = 600
+  t.window.height = 600
+  t.window = t.window or t.screen
   t.modules.audio = true
   t.modules.sound = true
   t.modules.physics = false
