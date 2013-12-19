@@ -435,6 +435,9 @@ function chapter.load()
   if level==1 or music_current ~= music[level] then
     love.audio.stop()
     music_current = music[level]
+    if not love.filesystem.exists(music_current) then
+      music_current = "music/Thunder Dreams.ogg"
+    end
     local src = love.audio.newSource(music_current, "stream")
     src:setVolume(0.5)
     src:setLooping(true)
