@@ -3,7 +3,7 @@ This source code is provided for educational purposes only.
 Copyright by Eric Gaudet.
 
 If you like reading the source code of this game, please consider supporting
-then author by buying the game at http://www.rti-zone.org/eyes-in-the-night/
+the author by buying the game at http://www.rti-zone.org/eyes-in-the-night/
 ]]
 
 local update_fn
