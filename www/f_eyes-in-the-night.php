@@ -31,7 +31,8 @@ Survival Challenge.
 </td><td width="50%" valign="top">
 This game can be downloaded and installed free of charge.<br>
 If you like <b>Eyes in the Night</b>, please consider supporting the author
-by buying the game for $.99, the price of a smartphone application.
+with a <b>bitcoin donation</b> at <b>19rfPYAs3VgYobsnDjJcVhQiCmWuKN3tUr</b><br>
+Alternatively, you can send a paypal donation of $0.99 with the button below<br>
 <form method=post action=https://api-3t.sandbox.paypal.com/nvp>
 <input type=hidden name=USER value=API_username>
 <input type=hidden name=PWD value=API_password>
