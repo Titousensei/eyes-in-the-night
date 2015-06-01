@@ -15,7 +15,9 @@ require "game_mode"
 menu = {}
 local menu_img
 local buttons = {}
+local button_labels = {}
 local eyes = {}
+local selected = 0
 score = 0
 
 local function survival_init_map() end
@@ -28,6 +30,7 @@ local function add_button(label, x0, y0, x1, y1)
     x1 = x1,
     y1 = y1
   }
+  table.insert(button_labels, label)
 end
 
 local function find_button(x, y)
@@ -49,11 +52,11 @@ function menu.load()
   table.insert(eyes, new_eye(.3, 550, 60, "green"))
   table.insert(eyes, new_eye(.15, 480, 460, "brown"))
 
-  add_button("continue", 88, 221, 527, 262)
-  add_button("new", 145, 283, 470, 322)
-  add_button("survival", 107, 340, 508, 391)
-  add_button("instructions", 182, 402, 432, 441)
-  add_button("credits", 235, 462, 379, 501)
+  add_button("continue", 83, 216, 531, 267)
+  add_button("new", 140, 278, 475, 327)
+  add_button("survival", 102, 335, 513, 390)
+  add_button("instructions", 158, 395, 436, 442)
+  add_button("credits", 230, 456, 380, 506)
 
   love.audio.stop()
   music_current = nil
@@ -65,6 +68,15 @@ function menu.draw()
 
   local mx = love.mouse.getX()
   local my = love.mouse.getY()
+
+  if selected>0 then
+    mb = button_labels[selected]
+    mx = (buttons[mb].x0 + buttons[mb].x1) / 2
+    my = (buttons[mb].y0 + buttons[mb].y1) / 2
+  else
+    mb = find_button(mx,my)
+  end
+
   for k, v in pairs(eyes) do
     v:draw(mx,my)
   end
@@ -89,13 +101,12 @@ function menu.draw()
     love.graphics.setColor(255, 255, 255, 255)
   end
 
-  --[[
-  mb = find_button(mx,my)
   if mb then
     local box = buttons[mb]
+    love.graphics.setColor(255, 255, 0, 180)
     love.graphics.rectangle("line", box.x0, box.y0, box.x1-box.x0, box.y1-box.y0 )
+    love.graphics.setColor(255, 255, 255, 255)
   end
-  --]]
 end
 
 function menu.update(dt) end
@@ -123,14 +134,13 @@ local function do_survival()
   change_state(game)
 end
 
-function menu.mousereleased(x,y,b)
-  mp = find_button(mousex, mousey)
-  mr = find_button(x, y)
+function menu.mousemoved(x, y, dx, dy)
+  selected = 0
+end
 
-  if mp ~= mr then
-    return
-  elseif userdata.level > 1 and userdata.level < 34 and mr == "continue" then
-    do_continue()
+local function executeSelected(mr)
+  if mr == "continue" and userdata.level > 1 and userdata.level < 34 then
+      do_continue()
   elseif mr == "new" then
     do_newgame()
   elseif userdata.survival and mr == "survival" then
@@ -142,24 +152,59 @@ function menu.mousereleased(x,y,b)
   end
 end
 
-function menu.keypressed(key)
-  if userdata.level > 1 and userdata.level < 34 and (
-    key == "return"
-    or key == "p" or key == "P"
-    or key == "g" or key == "G"
-  )
-  then
-    do_continue()
-  elseif key == "n" or key == "N" then
-    do_newgame()
-  elseif userdata.survival and (key == "s" or key == "S") then
-    do_survival()
-  elseif key == "i" or key == "I" then
-    change_state(instructions)
-  elseif key == "c" or key == "C" then
-    change_state(credits)
+function menu.mousereleased(x,y,b)
+  mp = find_button(mousex, mousey)
+  mr = find_button(x, y)
+
+  if mp ~= mr then
+    return
   end
-  --if key=="1" then userdata.level = 2 - userdata.level end
-  --if key=="2" then userdata.survival = not userdata.survival end
+  executeSelected(mr)
 end
 
+function menu.keypressed(key)
+  if key == "p" or key == "P"
+  or key == "g" or key == "G"
+  then
+    executeSelected("continue")
+  elseif key == "return" or key == " " then
+    if selected == 0 then
+      executeSelected("continue")
+    else
+      executeSelected(button_labels[selected])
+    end
+  elseif key == "n" or key == "N" then
+    executeSelected("new")
+  elseif userdata.survival and (key == "s" or key == "S") then
+    executeSelected("survival")
+  elseif key == "i" or key == "I" then
+    executeSelected("instructions")
+  elseif key == "c" or key == "C" then
+    executeSelected("credits")
+
+  elseif key == "up" then
+    if selected>1 then
+      selected = selected - 1
+    else
+      selected = 1
+    end
+    if selected == 1 and not (userdata.level > 1 and userdata.level < 34) then
+      selected = 2
+    end
+    if selected == 3 and not userdata.survival then
+      selected = 2
+    end
+  elseif key == "down" then
+    if selected<5 then
+      selected = selected + 1
+    else
+      selected = 5
+    end
+    if selected == 1 and not (userdata.level > 1 and userdata.level < 34) then
+      selected = 2
+    end
+    if selected == 3 and not userdata.survival then
+      selected = 4
+    end
+  end
+end

@@ -61,9 +61,46 @@ function newPaddedImage(filename)
   end
 end
 
+function init_joysticks()
+  local joysticks = love.joystick.getJoysticks()
+  for i, joystick in ipairs(joysticks) do
+    if joystick:getName() == "OUYA Game Controller" then
+      local guid = joystick:getGUID()
+      love.joystick.setGamepadMapping(guid, "a", "button", 1)
+      love.joystick.setGamepadMapping(guid, "b", "button", 2)
+      love.joystick.setGamepadMapping(guid, "x", "button", 3)
+      love.joystick.setGamepadMapping(guid, "y", "button", 4)
+      love.joystick.setGamepadMapping(guid, "dpup", "button", 12)
+      love.joystick.setGamepadMapping(guid, "dpdown", "button", 13)
+      love.joystick.setGamepadMapping(guid, "dpleft", "button", 14)
+      love.joystick.setGamepadMapping(guid, "dpright", "button", 15)
+      love.joystick.setGamepadMapping(guid, "back", "button", 10)
+      love.joystick.setGamepadMapping(guid, "start", "button", 11)
+
+-- D-Pad Up    1
+-- D-Pad Down    2
+-- D-Pad Left    3
+-- D-Pad Right   4
+-- O       6
+-- U       9
+-- Y       10
+-- A       7
+-- LB        12
+-- LT        14
+-- LS        16
+-- RB        13
+-- RT        15
+-- RS        17
+-- System      5 or 8 (?) (doesn't report)
+    end
+  end
+end
+
 function love.load()
   print("Love version:", love._version, love._os)
-  print("Start Memory:",gcinfo())
+  print("Start memory:",gcinfo())
+  local scale = love.window.getPixelScale( )
+  print("Pixel scale:", scale)
 
   love.graphics.setBackgroundColor(0,0,0)
 
@@ -117,6 +154,13 @@ end
 function love.mousereleased(x,y,b)
   state.mousereleased(x,y,b)
 end
+
+function love.mousemoved(x, y, dx, dy)
+  if state.mousemoved then
+    state.mousemoved(x, y, dx, dy)
+  end
+end
+
 
 function love.keypressed(key)
   if key == "escape" then
